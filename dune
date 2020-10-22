@@ -1,0 +1,3 @@
+(library (name lsystems) (modules (:standard \ main)))
+
+(executable (name main) (modules main) (libraries graphics lsystems))
