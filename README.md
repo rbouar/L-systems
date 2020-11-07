@@ -26,7 +26,8 @@ Enfin pour lancer votre programme: `./run arg1 arg2 ...`
 
 ## Tests en mode interactif sous emacs
 
-Votre programme doit avoir été compilé par `make byte`.
+Votre programme doit avoir été compilé par `make byte`. Il faut bien sûr avoir installé `emacs`, 
+ainsi qu'un mode ocaml pour `emacs`,  par exemple `tuareg-mode`.
   
   - Dans un fichier `start.ml` extérieur au répertoire du projet, par exemple
     au dessus du répertoire `projet`, recopiez le contenu de `lsystems.top`
