@@ -24,3 +24,22 @@ Par défaut, `make` est seulement utilisé pour abréger les commandes `dune` (v
 
 Enfin pour lancer votre programme: `./run arg1 arg2 ...`
 
+## Tests en mode interactif sous emacs
+
+Votre programme doit avoir été compilé par `make byte`.
+  
+  - Dans un fichier `start.ml` extérieur au répertoire du projet, par exemple
+    au dessus du répertoire `projet`, recopiez le contenu de `lsystems.top`
+    sans sa première directive  (`#ocaml init`). Ajoutez aux chemins d'accès
+    des directives en `#directory` les préfixes nécessaires pour accéder aux
+    mêmes répertoires (par exemple `projet/` si vous êtes au dessus de `projet`).
+
+  - Dans le même répertoire, ouvrez sous `emacs` votre fichier de tests. Faites-le
+    commencer par `#use "start.ml;;"`. Evaluez-simplement cette directive, ce qui
+    lancera l'interpréteur : vous pourrez ensuite effectuer vos tests. 
+
+En cas de recompilation du programme (toujours par `make byte`), il vous
+faudra interrompre l'interpréteur par la directive `#quit;;` puis le relancer
+en réévaluant `#use "start.ml;;"`.
+
+  
