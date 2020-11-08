@@ -17,3 +17,4 @@ type position = {
 (** Put here any type and function signatures concerning turtle *)
 val store : unit -> unit
 val restore : unit -> unit
+val turn : int -> unit

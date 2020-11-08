@@ -23,3 +23,7 @@ let t = { pos = { x = 0.; y = 0.; a = 0}; states = Stack.create ()};;
 let store () = Stack.push t.pos t.states
 
 let restore () = t.pos <- Stack.pop t.states
+
+let turn a =
+  let cur_pos = t.pos in
+  t.pos <- { cur_pos with a = cur_pos.a + a}
