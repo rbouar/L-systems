@@ -26,7 +26,7 @@ let init_turtle () =
   t.pos <- {x = 400.; y=400.; a = 90}
 
 let store () =
-  Stack.push t.pos t.states;
+  Stack.push t.pos t.states
 
 let restore () =
   t.pos <- Stack.pop t.states;
