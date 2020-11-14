@@ -31,3 +31,29 @@ draw_word interp w = match w with
   | Seq seq -> draw_seq interp seq
 
 let draw sys = draw_word sys.interp sys.axiom
+
+
+let rec next_symb rules symb i =
+  if i = 0 then Symb symb
+  else next_word rules (rules symb) (i-1)
+and
+next_seq rules seq i =
+  let rec next_seq_list seq = match seq with
+    | [] -> []
+    | x :: l -> (next_word rules x i) :: (next_seq_list l)
+  in Seq (next_seq_list seq)
+and
+next_branch rules branch i =
+  if i = 0 then Branch branch
+  else
+    Branch (next_word rules branch i)
+and
+next_word rules word i =
+  if i = 0 then word
+  else match word with
+    | Symb sym -> next_symb rules sym i
+    | Branch bra -> next_branch rules bra i
+    | Seq seq -> next_seq rules seq i
+
+let next sys i =
+  { sys with axiom = next_word sys.rules sys.axiom i}

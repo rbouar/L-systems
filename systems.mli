@@ -14,3 +14,4 @@ type 's system = {
 
 (** Put here any type and function interfaces concerning systems *)
 val draw : 's system -> unit
+val next : 's system ->  int -> 's system
