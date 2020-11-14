@@ -13,3 +13,21 @@ type 's system = {
     interp : 's -> Turtle.command list }
 
 (** Put here any type and function implementations concerning systems *)
+
+let rec draw_simb interp symb = symb |> interp |> Turtle.exec
+and
+draw_seq interp seq = match seq with
+  | [] -> ()
+  | x :: seq -> draw_word interp x; draw_seq interp seq
+and
+draw_branch interp branch =
+  let _ = Turtle.exec [Store] in
+  let _ = draw_word interp branch in
+  Turtle.exec [Restore]
+and
+draw_word interp w = match w with
+  | Symb sym -> draw_simb interp sym
+  | Branch bra -> draw_branch interp bra
+  | Seq seq -> draw_seq interp seq
+
+let draw sys = draw_word sys.interp sys.axiom
