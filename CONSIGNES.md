@@ -22,7 +22,7 @@ la commande "git pull prof master".
 
 ### Rapport.txt ###
 
-Un fichier texte Rapport.txt à la racine de votre dépôt devra nous
+Un fichier texte Rapport.txt (ou Rapport.md) à la racine de votre dépôt devra nous
 fournir toutes les informations spécifiées ci-dessous, clairement
 séparées en sections distinctes. Ce rapport n'est pas une simple
 formalité : il sera pris en compte dans l'évaluation.
@@ -65,7 +65,7 @@ Cette grille n'est donnée qu'a titre indicatif. Elle récapitule tout
 ce que nous attendrions d'un projet "parfait" - faites simplement au
 mieux pour vous rapprocher de ce projet idéal.
 
-(1) Rapport.txt complet et bien rédigé.
+(1) Rapport.txt (ou Rapport.md) complet et bien rédigé.
 
 (2) Usage approprié et régulier de GitLab. Commits (ou branches et
     merge-requests) correspondant à des tâches précises et effectués
