@@ -15,9 +15,5 @@ type position = {
 }
 
 (** Put here any type and function signatures concerning turtle *)
-val init_turtle : unit -> unit
-val store : unit -> unit
-val restore : unit -> unit
-val turn : int -> unit
-val move : int -> unit
-val line : int -> unit
+val init : unit -> unit
+val exec : command list -> unit

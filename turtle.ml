@@ -20,7 +20,7 @@ type turtle = {
 
 let t = { pos = { x = 0.; y = 0.; a = 0}; states = Stack.create ()};;
 
-let init_turtle () =
+let init () =
   Graphics.open_graph " 800x800";
   Graphics.moveto 400 400;
   t.pos <- {x = 400.; y=400.; a = 90}
@@ -52,3 +52,12 @@ let move n =
 let line n =
   update_pos n;
   Graphics.lineto (Float.to_int t.pos.x) (Float.to_int t.pos.y)
+
+let exec c_list = match c_list with
+  | [] -> ()
+  | x :: c_list -> match x with
+    | Line n -> line n
+    | Move n -> move n
+    | Turn n -> turn n
+    | Store -> store ()
+    | Restore -> restore ()
