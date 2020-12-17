@@ -36,36 +36,79 @@ let word_of_string s =
 
 let create_match_function assoc default =
   fun c -> match List.assoc_opt c assoc with
-           | None -> default
-           | Some r -> r;;
+    | None -> default c
+    | Some r -> r
+
+let next_token s =
+  match String.index_opt s ' ' with
+  | None -> None
+  | Some i -> Some (String.sub s (i+1) (String.length s - (i+1)))
+let command_list_of_string s =
+  let command_of_string s =
+    let len = match String.index_opt s ' ' with
+      | None -> (String.length s) - 1
+      | Some i -> (i-1) in
+    match s.[0] with
+    | 'T' -> Turtle.Turn ((String.sub s 1 len) |> int_of_string)
+    | 'M' -> Turtle.Move ((String.sub s 1 len) |> int_of_string)
+    | 'L' -> Turtle.Line ((String.sub s 1 len) |> int_of_string)
+    | 'S' -> Turtle.Store
+    | 'R' -> Turtle.Restore
+    |  _  -> raise (Invalid_argument "bad pattern");
+  in let rec append_command_list_of_string s l =
+    match s with
+    | None -> List.rev l
+    | Some s -> let cmd = command_of_string s in
+      append_command_list_of_string (next_token s) (cmd :: l)
+  in if String.length s = 0 then []
+  else append_command_list_of_string (Some s) []
 
 
-let command_of_string s =
-  let len = String.length s in
-  if len = 0 then raise (Invalid_argument "empty string")
-  else let n = (String.sub s 1 (len - 1)) |> int_of_string in
-       match s.[0] with
-       | 'T' -> Turtle.Turn n
-       | 'M' -> Turtle.Move n
-       | 'L' -> Turtle.Line n
-       |  _  -> raise (Invalid_argument "bad pattern");;
+let is_empty_line line =
+  String.length line = 0
 
 
-let rec skip ci =
-  let l = input_line ci in
-  if (String.length l) = 0 || l.[0] = '#' then skip ci
-  else l;;
-
-
-let parse ci =  
+let rec next_line ic =
   try
-    let axiom = word_of_string (skip ci) in
-    Some axiom
-  with End_of_file -> None;;
+    let line = input_line ic in
+    if is_empty_line line then None
+    else if line.[0] = '#' then next_line ic
+    else Some line
+  with End_of_file -> None
 
+let skip_next_line ic = input_line ic
+
+let parse_axiom ic =
+  let res = match next_line ic with
+    | None -> raise (Invalid_argument "bad pattern")
+    | Some line -> word_of_string line
+  in let _ = skip_next_line ic in
+  res
+
+let pair_of_string s f =
+  let second = String.sub s 2 ((String.length s) - 2) in
+  (s.[0], f second)
+
+let create_list_assoc ic f =
+  let rec append_list_assoc ic f l =
+    match next_line ic with
+    | None -> l
+    | Some line ->
+    let pair = pair_of_string line f in
+      append_list_assoc ic f (pair :: l)
+  in append_list_assoc ic f []
+
+let parse_rules ic =
+  let assoc = create_list_assoc ic word_of_string in
+  create_match_function assoc (fun (x: char) -> Symb x)
+
+let parse_interp ic =
+  let assoc = create_list_assoc ic command_list_of_string in
+  create_match_function assoc (fun x -> raise (Invalid_argument "bad pattern"))
 
 let parse_system file =
   let ic = open_in file in
-  let res = ref (parse ic) in 
-  close_in ic;
-  !res;;
+  let axiom = parse_axiom ic in
+  let rules = parse_rules ic in
+  let interp = parse_interp ic in
+  {axiom = axiom; rules = rules; interp = interp}
