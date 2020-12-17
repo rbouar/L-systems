@@ -13,5 +13,5 @@ type 's system = {
     interp : 's -> Turtle.command list }
 
 (** Put here any type and function interfaces concerning systems *)
-val draw : 's system -> unit
+val draw_system : 's system -> unit
 val next : 's system ->  int -> 's system

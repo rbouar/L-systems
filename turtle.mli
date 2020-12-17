@@ -14,6 +14,8 @@ type position = {
   a: int;          (** angle of the direction *)
 }
 
+type turtle
+
 (** Put here any type and function signatures concerning turtle *)
-val init : unit -> unit
-val exec : command list -> unit
+val create_turtle : unit -> turtle
+val exec : turtle -> command list -> turtle
