@@ -18,6 +18,9 @@ type turtle = {
   }
 
 
+let turtle_pos turtle =
+  turtle.pos;;
+
 let init_graphics () =
   Graphics.open_graph " 800x800";;
 
