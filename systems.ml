@@ -1,3 +1,4 @@
+open Turtle
 (** Words, rewrite systems, and rewriting *)
 
 type 's word =
@@ -13,7 +14,46 @@ type 's system = {
     interp : 's -> Turtle.command list }
 
 (** Put here any type and function implementations concerning systems *)
+(** Computing the right scale *)
 
+let update_up_left turtle up_left =
+  let pos = turtle_pos turtle in
+  { up_left with x = min up_left.x pos.x; y = max up_left.y pos.y }
+
+let update_down_right turtle down_right =
+  let pos = turtle_pos turtle in
+  { down_right with x = max down_right.x pos.x; y = min down_right.y pos.y }
+
+
+let rec frame_symb interp symb (turtle, up_left, down_right) =
+  let t = symb |> interp |> Turtle.exec turtle in
+  (t, update_up_left t up_left, update_down_right t down_right)
+
+and frame_seq interp seq (turtle, up_left, down_right) =
+  match seq with
+  | [] -> (turtle, up_left, down_right)
+  | x :: seq -> let res = frame_word interp x (turtle, up_left, down_right) in
+                frame_seq interp seq res
+
+and frame_branch interp branch (turtle, up_left, down_right) =
+  let t1 = Turtle.exec turtle [Store] in
+  let (t2, ul, dr) = frame_word interp branch (t1, up_left, down_right) in
+  (Turtle.exec t2 [Restore], ul, dr)
+
+and frame_word interp word (turtle, up_left, down_right) =
+  match word with
+  | Symb sym -> frame_symb interp sym (turtle, up_left, down_right)
+  | Branch bra -> frame_branch interp bra (turtle, up_left, down_right)
+  | Seq seq -> frame_seq interp seq (turtle, up_left, down_right)
+
+let frame_system sys =
+  let turtle = Turtle.create_turtle () in
+  let pos = turtle_pos turtle in
+  let _, upper_left, down_right = frame_word sys.interp sys.axiom (turtle, pos, pos) in
+  upper_left, down_right
+
+
+(** Drawing lsystems *)
 let rec draw_symb interp symb turtle =
   symb |> interp |> Turtle.exec turtle
 
@@ -35,6 +75,7 @@ and draw_word interp word turtle =
   | Seq seq -> draw_seq interp seq turtle
 
 let draw_system sys =
+  Graphics.clear_graph ();
   let turtle = Turtle.create_turtle () in
   let _ = draw_word sys.interp sys.axiom turtle in
   ();;
