@@ -17,6 +17,6 @@ type position = {
 type turtle
 
 (** Put here any type and function signatures concerning turtle *)
-val create_turtle : unit -> turtle
+val create_turtle_at : float -> float -> turtle
 val exec : turtle -> command list -> turtle
 val turtle_pos : turtle -> position

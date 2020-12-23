@@ -17,21 +17,14 @@ type turtle = {
     states : position list;
   }
 
-
 let turtle_pos turtle =
   turtle.pos;;
 
-let init_graphics () =
-  Graphics.open_graph " 800x800";;
-
-
-let create_turtle () =
-  let middle_x = (Graphics.size_x ()) / 2 in
-  let middle_y = (Graphics.size_y ()) / 2 in  
-  Graphics.moveto middle_x middle_y;
-  let pos = {x = (Float.of_int middle_x);
-             y = (Float.of_int middle_y);
-             a = 90} in
+let create_turtle_at x y =
+  (* let middle_x = (Graphics.size_x ()) / 2 in
+   * let middle_y = (Graphics.size_y ()) / 2 in   *)
+  Graphics.moveto (Int.of_float x) (Int.of_float y);
+  let pos = {x = x; y = y; a = 90} in
   { pos = pos; states = [] };;
 
 

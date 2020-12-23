@@ -16,10 +16,18 @@ type 's system = {
 (** Put here any type and function implementations concerning systems *)
 (** Computing the right scale *)
 
+
+(* Coordonnées de départ de la tortue *)
+let turtle_start_x = 0.0
+let turtle_start_y = 0.0
+
+
+(* Calcule le nouveau coin haut-gauche en fonction de la position de la tortue *)
 let update_up_left turtle up_left =
   let pos = turtle_pos turtle in
   { up_left with x = min up_left.x pos.x; y = max up_left.y pos.y }
 
+(* Calcule le nouveau coin bas-droite en fonction de la position de la tortue *)
 let update_down_right turtle down_right =
   let pos = turtle_pos turtle in
   { down_right with x = max down_right.x pos.x; y = min down_right.y pos.y }
@@ -46,38 +54,70 @@ and frame_word interp word (turtle, up_left, down_right) =
   | Branch bra -> frame_branch interp bra (turtle, up_left, down_right)
   | Seq seq -> frame_seq interp seq (turtle, up_left, down_right)
 
+
+(** Compute the minimal rectangle framing the lsystem *)
 let frame_system sys =
-  let turtle = Turtle.create_turtle () in
+  let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y in
   let pos = turtle_pos turtle in
   let _, upper_left, down_right = frame_word sys.interp sys.axiom (turtle, pos, pos) in
   upper_left, down_right
 
 
-(** Drawing lsystems *)
-let rec draw_symb interp symb turtle =
-  symb |> interp |> Turtle.exec turtle
+(* Calcule le facteur d'agrandissement tel que 
+   le rectangle encadrant soit le plus grand possible sans sortir de la fenêtre *)
+let scale_factor window_height window_width frame_height frame_width : float =
+  min (window_height /. frame_height) (window_width /. frame_width)
 
-and draw_seq interp seq turtle =
+
+let create_scaled_exec (factor : float) =
+  fun turtle cmd_list ->
+  match cmd_list with
+  | [] -> turtle
+  | c :: cmd_list -> match c with
+                     | Line n -> exec turtle [Line (Int.of_float ((Float.of_int n) *. factor))]
+                     | Move n -> exec turtle [Move (Int.of_float ((Float.of_int n) *. factor))]
+                     | cmd -> exec turtle [cmd]
+
+
+let new_turtle_start_x upper_left turtle_x factor =
+  let x_ul = upper_left.x in
+  -. (factor *. x_ul +. turtle_x *. (1. -. factor))
+
+let new_turtle_start_y upper_left turtle_y factor window_height =
+  let y_ul = upper_left.y in
+  window_height -. (factor *. y_ul +. turtle_y *. (1. -. factor))
+
+
+let rec draw_symb interp symb f turtle =
+  symb |> interp |> f turtle
+
+and draw_seq interp seq f turtle =
   match seq with
   | [] -> turtle
-  | x :: seq -> let t' = draw_word interp x turtle in
-                draw_seq interp seq t'
+  | w :: seq -> let turtle' = draw_word interp w f turtle in
+                draw_seq interp seq f turtle'
 
-and draw_branch interp branch turtle =
-  let t1 = Turtle.exec turtle [Store] in
-  let t2 = draw_word interp branch t1 in
-  Turtle.exec t2 [Restore]
+and draw_branch interp branch f turtle =
+  let t1 = f turtle [Store] in
+  let t2 = draw_word interp branch f t1 in
+  f t2 [Restore]
 
-and draw_word interp word turtle =
+and draw_word interp word f turtle =
   match word with
-  | Symb sym -> draw_symb interp sym turtle
-  | Branch bra -> draw_branch interp bra turtle
-  | Seq seq -> draw_seq interp seq turtle
+  | Symb symb -> draw_symb interp symb f turtle
+  | Branch branch -> draw_branch interp branch f turtle 
+  | Seq seq -> draw_seq interp seq f turtle 
 
+(** Draw the given lsystem with right scale *)
 let draw_system sys =
+  let window_width = (Float.of_int (Graphics.size_x ())) in
+  let window_height = (Float.of_int (Graphics.size_y ())) in
+  let ul, dr = frame_system sys in
+  let factor = (scale_factor window_height window_width (ul.y -. dr.y) (dr.x -. ul.x)) *. 0.5 in
+  let scaled_exec = create_scaled_exec factor in
+  let turtle = Turtle.create_turtle_at (new_turtle_start_x ul turtle_start_x factor) (new_turtle_start_y ul turtle_start_y factor window_height) in
   Graphics.clear_graph ();
-  let turtle = Turtle.create_turtle () in
-  let _ = draw_word sys.interp sys.axiom turtle in
+  let _ = draw_word sys.interp sys.axiom scaled_exec turtle in
   ();;
 
 
