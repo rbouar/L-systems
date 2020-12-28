@@ -11,40 +11,27 @@ type position = {
     a: int;        (** angle of the direction *)
   }
 
-(** Put here any type and function implementations concerning turtle *)
+
 type turtle = {
     pos : position;
     states : position list;
   }
 
-let turtle_pos turtle =
-  turtle.pos;;
-
 let create_turtle_at x y =
-  (* let middle_x = (Graphics.size_x ()) / 2 in
-   * let middle_y = (Graphics.size_y ()) / 2 in   *)
   Graphics.moveto (Int.of_float x) (Int.of_float y);
   let pos = {x = x; y = y; a = 90} in
-  { pos = pos; states = [] };;
+  { pos = pos; states = [] }
 
 
-let store t =
-  { t with states = t.pos :: t.states }
+let turtle_pos turtle =
+  turtle.pos
 
 
-let restore t =
-  match t.states with
-  | [] -> failwith "No more state"
-  | p :: l' -> Graphics.moveto (Float.to_int p.x) (Float.to_int p.y);
-               {pos = p; states = l'}
-
-let turn t angle =
-  let new_pos = { t.pos with a = t.pos.a + angle } in
-  { t with pos = new_pos }
-
+(** Degree to radian *)
 let radian_of_degree deg =
   deg *. (Float.pi /. 180.);;
 
+(** Advance turtle t by n units *)
 let update_pos t n =
   let cur_pos = t.pos in
   let a' = radian_of_degree (Float.of_int cur_pos.a) in
@@ -54,22 +41,37 @@ let update_pos t n =
   { t with pos = new_pos }
 
 
-let move t n =
-  let t' = update_pos t n in
-  Graphics.moveto (Float.to_int t'.pos.x) (Float.to_int t'.pos.y);
-  t'
-
 let line t n =
   let t' = update_pos t n in
   Graphics.lineto (Float.to_int t'.pos.x) (Float.to_int t'.pos.y);
   t'
 
-let exec t c_list =
-  match c_list with
+let move t n =
+  let t' = update_pos t n in
+  Graphics.moveto (Float.to_int t'.pos.x) (Float.to_int t'.pos.y);
+  t'
+
+let turn t angle =
+  let new_pos = { t.pos with a = t.pos.a + angle } in
+  { t with pos = new_pos }
+
+let store t =
+  { t with states = t.pos :: t.states }
+
+let restore t =
+  match t.states with
+  | [] -> failwith "No more state"
+  | p :: l' -> Graphics.moveto (Float.to_int p.x) (Float.to_int p.y);
+               {pos = p; states = l'}
+
+
+let rec exec t l =
+  match l with
   | [] -> t
-  | x :: c_list -> match x with
-                   | Line n -> line t n
-                   | Move n -> move t n
-                   | Turn n -> turn t n
-                   | Store -> store t
-                   | Restore -> restore t
+  | x :: l' -> let t' = match x with
+                 | Line n -> line t n
+                 | Move n -> move t n
+                 | Turn n -> turn t n
+                 | Store -> store t
+                 | Restore -> restore t in
+               exec t' l'
