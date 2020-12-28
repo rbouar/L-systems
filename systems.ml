@@ -111,10 +111,11 @@ and draw_word interp word f turtle =
 
 (** Draw the given lsystem with right scale *)
 let draw_system sys =
+  let padding = 50. in
   let ul, dr = frame_system sys in
 
-  let window_width = (Float.of_int (Graphics.size_x ())) in
-  let window_height = (Float.of_int (Graphics.size_y ())) in
+  let window_width = (Float.of_int (Graphics.size_x ())) -. padding in
+  let window_height = (Float.of_int (Graphics.size_y ())) -. padding in
   let frame_height = Float.abs (ul.y -. dr.y) in
   let frame_width = Float.abs (dr.x -. ul.x) in
 
@@ -122,8 +123,8 @@ let draw_system sys =
 
   let scaled_exec = create_scaled_exec factor in
 
-  let turtle_x = new_turtle_start_x window_width ul dr turtle_start_x factor in
-  let turtle_y = new_turtle_start_y window_height ul dr turtle_start_y factor in
+  let turtle_x = new_turtle_start_x (window_width +. padding) ul dr turtle_start_x factor in
+  let turtle_y = new_turtle_start_y (window_height +. padding) ul dr turtle_start_y factor in
   
   let turtle = Turtle.create_turtle_at turtle_x turtle_y in
   Graphics.clear_graph ();
