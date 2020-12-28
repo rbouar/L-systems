@@ -1,19 +1,35 @@
+open Lsystems
 
 (** Gestion des arguments de la ligne de commande.
     Nous suggérons l'utilisation du module Arg
     http://caml.inria.fr/pub/docs/manual-ocaml/libref/Arg.html
 *)
 
-let usage = (* Entete du message d'aide pour --help *)
+let what = (* Entete du message d'aide pour --help *)
   "Interpretation de L-systemes et dessins fractals"
 
-let action_what () = Printf.printf "%s\n" usage; exit 0
+let usage =
+  "Mettre un chemin vers un fichier décrivant un L-systemes en paramètre\n"
+  ^"  Commandes possible:\n"
+  ^"  <space>: déssine le L-systemes courant\n"
+  ^"  <+>: Calcul l'itération suivante du L-systemes courant\n"
+  ^"  <->: Calcul l'itération précédente du L-systemes courant\n"
+  ^"  <0> à <9>: Calcul la i-ième itération du L-systemes chargé inital\n"
+  ^"  <q>: Quitter"
+
+
+let action_what () = Printf.printf "%s\n" what; exit 0
+
+let action_usage () = Printf.printf "%s\n" usage; exit 0
 
 let cmdline_options = [
-("--what" , Arg.Unit action_what, "description");
+  ("--what" , Arg.Unit action_what, "description");
+  ("--usage", Arg.Unit action_usage, "utilisation");
 ]
 
-let extra_arg_action = fun s -> failwith ("Argument inconnu :"^s)
+let extra_arg_action = fun s -> let sys = Parser.parse_system s in
+  let _ = Graphics.open_graph " 800x800" in
+  Command.wait sys sys 0
 
 let main () =
   Arg.parse cmdline_options extra_arg_action usage;
