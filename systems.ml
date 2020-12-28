@@ -57,15 +57,18 @@ and frame_word interp word (turtle, up_left, down_right) =
 
 (** Compute the minimal rectangle framing the lsystem *)
 let frame_system sys =
+  let frame_interp s = sys.interp s |> List.map (fun cmd -> match cmd with
+                                                            | Line n -> Move n
+                                                            | c -> c) in
   let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y in
   let pos = turtle_pos turtle in
-  let _, upper_left, down_right = frame_word sys.interp sys.axiom (turtle, pos, pos) in
-  upper_left, down_right
+  let _, upper_left, down_right = frame_word frame_interp sys.axiom (turtle, pos, pos) in
+  upper_left, down_right;;
 
 
 (* Calcule le facteur d'agrandissement tel que 
    le rectangle encadrant soit le plus grand possible sans sortir de la fenêtre *)
-let scale_factor window_height window_width frame_height frame_width : float =
+let scale_factor window_height window_width frame_height frame_width =
   min (window_height /. frame_height) (window_width /. frame_width)
 
 
@@ -79,13 +82,11 @@ let create_scaled_exec (factor : float) =
                      | cmd -> exec turtle [cmd]
 
 
-let new_turtle_start_x upper_left turtle_x factor =
-  let x_ul = upper_left.x in
-  -. (factor *. x_ul +. turtle_x *. (1. -. factor))
+let new_turtle_start_x window_width up_left down_right turtle_x factor =
+  (window_width /. 2.) -. factor *. ((up_left.x +. down_right.x) /. 2.) +. turtle_x *. (factor -. 1.)
 
-let new_turtle_start_y upper_left turtle_y factor window_height =
-  let y_ul = upper_left.y in
-  window_height -. (factor *. y_ul +. turtle_y *. (1. -. factor))
+let new_turtle_start_y window_height up_left down_right turtle_y factor =
+  (window_height /. 2.) -. factor *. ((up_left.y +. down_right.y) /. 2.) +. turtle_y *. (factor -. 1.)
 
 
 let rec draw_symb interp symb f turtle =
@@ -110,12 +111,21 @@ and draw_word interp word f turtle =
 
 (** Draw the given lsystem with right scale *)
 let draw_system sys =
+  let ul, dr = frame_system sys in
+
   let window_width = (Float.of_int (Graphics.size_x ())) in
   let window_height = (Float.of_int (Graphics.size_y ())) in
-  let ul, dr = frame_system sys in
-  let factor = (scale_factor window_height window_width (ul.y -. dr.y) (dr.x -. ul.x)) *. 0.5 in
+  let frame_height = Float.abs (ul.y -. dr.y) in
+  let frame_width = Float.abs (dr.x -. ul.x) in
+
+  let factor = scale_factor window_height window_width frame_height frame_width in
+
   let scaled_exec = create_scaled_exec factor in
-  let turtle = Turtle.create_turtle_at (new_turtle_start_x ul turtle_start_x factor) (new_turtle_start_y ul turtle_start_y factor window_height) in
+
+  let turtle_x = new_turtle_start_x window_width ul dr turtle_start_x factor in
+  let turtle_y = new_turtle_start_y window_height ul dr turtle_start_y factor in
+  
+  let turtle = Turtle.create_turtle_at turtle_x turtle_y in
   Graphics.clear_graph ();
   let _ = draw_word sys.interp sys.axiom scaled_exec turtle in
   ();;
