@@ -1,17 +1,43 @@
 exception Quit
+
+let print_on_space () =
+  print_string "Dessine..."; print_newline ()
+
+let print_on_plus () =
+  print_string "Calcul de l'itération suivante..."; print_newline ()
+
+let print_on_minus () =
+  print_string "Calcul de l'itération précédente..."; print_newline ()
+
+let print_on_number x =
+  Printf.printf "Calcul de l'itération n°%c" x; print_newline ()
+
+let print_not_found c =
+  Printf.printf
+    "Command inconnue: %c, voir --usage pour les commandes supportées" c;
+  print_newline ()
 let rec wait or_sys cur_sys cur_index =
   let rec cmd_pressed () =
     let ev = Graphics.wait_next_event [Graphics.Key_pressed] in
     if ev.keypressed
     then match ev.key with
       | 'q' -> raise Quit
-      | ' ' -> Graphics.clear_graph (); Systems.draw_system cur_sys; cmd_pressed ()
-      | '+' -> wait or_sys (Systems.next cur_sys 1) (cur_index + 1)
-      | '-' -> wait or_sys (Systems.next or_sys (cur_index - 1)) (cur_index - 1)
+      | ' ' ->
+        print_on_space ();
+        Graphics.clear_graph ();
+        Systems.draw_system cur_sys;
+        cmd_pressed ()
+      | '+' ->
+        print_on_plus ();
+        wait or_sys (Systems.next cur_sys 1) (cur_index + 1)
+      | '-' ->
+        print_on_minus ();
+        wait or_sys (Systems.next or_sys (cur_index - 1)) (cur_index - 1)
       | '0'.. '9' as x ->
+        print_on_number x;
         let n = (Char.code x) - (Char.code '0') in
         if n >= cur_index then wait or_sys (Systems.next cur_sys (n - cur_index)) n
         else wait or_sys (Systems.next or_sys n) n
-      | x -> Printf.printf "Commande inconnue: %c" x; print_newline (); cmd_pressed ()
+      | x -> print_not_found x; cmd_pressed ()
     else cmd_pressed ()
   in cmd_pressed ()
