@@ -32,8 +32,8 @@ let extra_arg_action = fun s -> let sys = Parser.parse_system s in
   Command.wait sys sys 0
 
 let main () =
-  Arg.parse cmdline_options extra_arg_action usage;
-  print_string "Pour l'instant je ne fais rien\n"
+  Arg.parse cmdline_options extra_arg_action what;
+  action_usage ()
 
 (** On ne lance ce main que dans le cas d'un programme autonome
     (c'est-à-dire que l'on est pas dans un "toplevel" ocaml interactif).
