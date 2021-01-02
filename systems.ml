@@ -22,6 +22,27 @@ let turtle_start_x = 0.0
 let turtle_start_y = 0.0
 
 
+let rec iter_word word interp exec a =
+  match word with
+  | Symb symb -> iter_symb symb interp exec a
+  | Branch branch -> iter_branch branch interp exec a
+  | Seq seq -> iter_seq seq interp exec a
+
+and iter_symb symb interp exec a =
+  exec a (interp symb)
+
+and iter_seq seq interp exec a =
+  match seq with
+  | [] -> a
+  | w :: seq' -> let a' = iter_word w interp exec a
+                 in iter_seq seq' interp exec a'
+
+and iter_branch branch interp exec a =
+  let a1 = exec a [Store] in
+  let a2 = iter_word branch interp exec a1 in
+  exec a2 [Restore]
+
+
 (* Calcule le nouveau coin haut-gauche en fonction de la position de la tortue *)
 let update_up_left turtle up_left =
   let pos = turtle_pos turtle in
@@ -32,45 +53,31 @@ let update_down_right turtle down_right =
   let pos = turtle_pos turtle in
   { down_right with x = max down_right.x pos.x; y = min down_right.y pos.y }
 
+let frame_interp interp x =
+  interp x |> List.map (fun cmd -> match cmd with
+                                   | Line n -> Move n
+                                   | c -> c )
 
-let rec frame_symb interp symb (turtle, up_left, down_right) =
-  let t = symb |> interp |> Turtle.exec turtle in
-  (t, update_up_left t up_left, update_down_right t down_right)
-
-and frame_seq interp seq (turtle, up_left, down_right) =
-  match seq with
-  | [] -> (turtle, up_left, down_right)
-  | x :: seq -> let res = frame_word interp x (turtle, up_left, down_right) in
-                frame_seq interp seq res
-
-and frame_branch interp branch (turtle, up_left, down_right) =
-  let t1 = Turtle.exec turtle [Store] in
-  let (t2, ul, dr) = frame_word interp branch (t1, up_left, down_right) in
-  (Turtle.exec t2 [Restore], ul, dr)
-
-and frame_word interp word (turtle, up_left, down_right) =
-  match word with
-  | Symb sym -> frame_symb interp sym (turtle, up_left, down_right)
-  | Branch bra -> frame_branch interp bra (turtle, up_left, down_right)
-  | Seq seq -> frame_seq interp seq (turtle, up_left, down_right)
-
+let frame_exec exec (turtle, up_left, down_right) cmd =
+  let turtle' = Turtle.exec turtle cmd in
+  (turtle',
+   update_up_left turtle' up_left,
+   update_down_right turtle' down_right)
 
 (** Compute the minimal rectangle framing the lsystem *)
 let frame_system sys =
-  let frame_interp s = sys.interp s |> List.map (fun cmd -> match cmd with
-                                                            | Line n -> Move n
-                                                            | c -> c) in
+  let interp = frame_interp sys.interp in
+  let exec = frame_exec Turtle.exec in
   let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y in
   let pos = turtle_pos turtle in
-  let _, upper_left, down_right = frame_word frame_interp sys.axiom (turtle, pos, pos) in
-  upper_left, down_right;;
+  let _, up_left, down_right = iter_word sys.axiom interp exec (turtle, pos, pos) in
+  up_left, down_right
 
 
 (* Calcule le facteur d'agrandissement tel que 
    le rectangle encadrant soit le plus grand possible sans sortir de la fenêtre *)
 let scale_factor window_height window_width frame_height frame_width =
   min (window_height /. frame_height) (window_width /. frame_width)
-
 
 let create_scaled_exec (factor : float) =
   fun turtle cmd_list ->
@@ -130,6 +137,8 @@ let draw_system sys =
   Graphics.clear_graph ();
   let _ = draw_word sys.interp sys.axiom scaled_exec turtle in
   ();;
+
+
 
 
 
