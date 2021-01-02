@@ -53,6 +53,7 @@ let update_down_right turtle down_right =
   let pos = turtle_pos turtle in
   { down_right with x = max down_right.x pos.x; y = min down_right.y pos.y }
 
+(* On ne veut pas dessiner durant le calcul de l'échelle *)
 let frame_interp interp x =
   interp x |> List.map (fun cmd -> match cmd with
                                    | Line n -> Move n
@@ -74,8 +75,8 @@ let frame_system sys =
   up_left, down_right
 
 
-(* Calcule le facteur d'agrandissement tel que 
-   le rectangle encadrant soit le plus grand possible sans sortir de la fenêtre *)
+(* Calcule le facteur d'agrandissement tel que le rectangle encadrant soit le
+ * plus grand possible sans sortir de la fenêtre *)
 let scale_factor window_height window_width frame_height frame_width =
   min (window_height /. frame_height) (window_width /. frame_width)
 
@@ -86,11 +87,11 @@ let new_turtle_start_x window_width up_left down_right turtle_x factor =
 let new_turtle_start_y window_height up_left down_right turtle_y factor =
   (window_height /. 2.) -. factor *. ((up_left.y +. down_right.y) /. 2.) +. turtle_y *. (factor -. 1.)
 
-
+(* Les mouvements de la tortue dépendent du facteur d'agrandissement *)
 let scaled_interp interp factor x =
   interp x |> List.map (fun cmd -> match cmd with
-                                   | Line n -> Line (n * factor)
-                                   | Move n -> Move (n * factor)
+                                   | Line n -> Line (Int.of_float ((Float.of_int n) *. factor))
+                                   | Move n -> Move (Int.of_float ((Float.of_int n) *. factor))
                                    | c -> c )
 
 (** Draw the given lsystem with right scale *)
@@ -105,8 +106,8 @@ let draw_system sys =
 
   let factor = scale_factor window_height window_width frame_height frame_width in
 
-  let interp = scaled_interp sys.interp (Int.of_float factor) in
-
+  let interp = scaled_interp sys.interp factor in
+  
   let turtle_x = new_turtle_start_x (window_width +. padding) ul dr turtle_start_x factor in
   let turtle_y = new_turtle_start_y (window_height +. padding) ul dr turtle_start_y factor in
   
