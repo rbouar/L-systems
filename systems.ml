@@ -79,15 +79,6 @@ let frame_system sys =
 let scale_factor window_height window_width frame_height frame_width =
   min (window_height /. frame_height) (window_width /. frame_width)
 
-let create_scaled_exec (factor : float) =
-  fun turtle cmd_list ->
-  match cmd_list with
-  | [] -> turtle
-  | c :: cmd_list -> match c with
-                     | Line n -> exec turtle [Line (Int.of_float ((Float.of_int n) *. factor))]
-                     | Move n -> exec turtle [Move (Int.of_float ((Float.of_int n) *. factor))]
-                     | cmd -> exec turtle [cmd]
-
 
 let new_turtle_start_x window_width up_left down_right turtle_x factor =
   (window_width /. 2.) -. factor *. ((up_left.x +. down_right.x) /. 2.) +. turtle_x *. (factor -. 1.)
@@ -96,25 +87,11 @@ let new_turtle_start_y window_height up_left down_right turtle_y factor =
   (window_height /. 2.) -. factor *. ((up_left.y +. down_right.y) /. 2.) +. turtle_y *. (factor -. 1.)
 
 
-let rec draw_symb interp symb f turtle =
-  symb |> interp |> f turtle
-
-and draw_seq interp seq f turtle =
-  match seq with
-  | [] -> turtle
-  | w :: seq -> let turtle' = draw_word interp w f turtle in
-                draw_seq interp seq f turtle'
-
-and draw_branch interp branch f turtle =
-  let t1 = f turtle [Store] in
-  let t2 = draw_word interp branch f t1 in
-  f t2 [Restore]
-
-and draw_word interp word f turtle =
-  match word with
-  | Symb symb -> draw_symb interp symb f turtle
-  | Branch branch -> draw_branch interp branch f turtle 
-  | Seq seq -> draw_seq interp seq f turtle 
+let scaled_interp interp factor x =
+  interp x |> List.map (fun cmd -> match cmd with
+                                   | Line n -> Line (n * factor)
+                                   | Move n -> Move (n * factor)
+                                   | c -> c )
 
 (** Draw the given lsystem with right scale *)
 let draw_system sys =
@@ -128,18 +105,14 @@ let draw_system sys =
 
   let factor = scale_factor window_height window_width frame_height frame_width in
 
-  let scaled_exec = create_scaled_exec factor in
+  let interp = scaled_interp sys.interp (Int.of_float factor) in
 
   let turtle_x = new_turtle_start_x (window_width +. padding) ul dr turtle_start_x factor in
   let turtle_y = new_turtle_start_y (window_height +. padding) ul dr turtle_start_y factor in
   
   let turtle = Turtle.create_turtle_at turtle_x turtle_y in
-  Graphics.clear_graph ();
-  let _ = draw_word sys.interp sys.axiom scaled_exec turtle in
+  let _ = iter_word sys.axiom interp Turtle.exec turtle in
   ();;
-
-
-
 
 
 let rec next_symb rules symb i =
