@@ -32,22 +32,23 @@ let radian_of_degree deg =
   deg *. (Float.pi /. 180.);;
 
 (** Advance turtle t by n units *)
-let update_pos t n =
+let update_pos t n f =
   let cur_pos = t.pos in
   let a' = radian_of_degree (Float.of_int cur_pos.a) in
-  let new_x = (Float.cos a' *. Float.of_int n) +. cur_pos.x in
-  let new_y = (Float.sin a' *. Float.of_int n) +. cur_pos.y in  
+  let dist = (float_of_int n) *. f in
+  let new_x = (Float.cos a' *. dist) +. cur_pos.x in
+  let new_y = (Float.sin a' *. dist) +. cur_pos.y in
   let new_pos = { t.pos with x = new_x; y = new_y } in
   { t with pos = new_pos }
 
 
-let line t n =
-  let t' = update_pos t n in
+let line t n f =
+  let t' = update_pos t n f in
   Graphics.lineto (Float.to_int t'.pos.x) (Float.to_int t'.pos.y);
   t'
 
-let move t n =
-  let t' = update_pos t n in
+let move t n f =
+  let t' = update_pos t n f in
   Graphics.moveto (Float.to_int t'.pos.x) (Float.to_int t'.pos.y);
   t'
 
@@ -65,13 +66,13 @@ let restore t =
                {pos = p; states = l'}
 
 
-let rec exec t l =
+let rec exec f t l =
   match l with
   | [] -> t
   | x :: l' -> let t' = match x with
-                 | Line n -> line t n
-                 | Move n -> move t n
+                 | Line n -> line t n f
+                 | Move n -> move t n f
                  | Turn n -> turn t n
                  | Store -> store t
                  | Restore -> restore t in
-               exec t' l'
+               exec f t' l'
