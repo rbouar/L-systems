@@ -21,3 +21,6 @@ val iter_word :
   ('b -> Turtle.command list -> 'b) ->
   'b ->
   'b
+
+
+val compute_factor : int -> int -> 's system -> float * float * float

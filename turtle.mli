@@ -24,3 +24,5 @@ val turtle_pos : turtle -> position
 
 (** Exec turtle commands list *)
 val exec : float -> turtle -> command list -> turtle
+
+val update_pos : turtle -> int -> float -> turtle
