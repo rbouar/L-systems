@@ -4,6 +4,7 @@ type command =
   | Turn of int
   | Store
   | Restore
+  | Color of Graphics.color
 
 type position = {
     x: float;      (** position x *)
@@ -65,6 +66,9 @@ let restore t =
   | p :: l' -> Graphics.moveto (Float.to_int p.x) (Float.to_int p.y);
                {pos = p; states = l'}
 
+let set_color turtle color =
+  let _ = Graphics.set_color color in
+  turtle
 
 let rec exec f t l =
   match l with
@@ -74,5 +78,6 @@ let rec exec f t l =
                  | Move n -> move t n f
                  | Turn n -> turn t n
                  | Store -> store t
-                 | Restore -> restore t in
+                 | Restore -> restore t
+                 | Color c -> set_color t c in
                exec f t' l'

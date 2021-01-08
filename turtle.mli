@@ -6,6 +6,7 @@ type command =
 | Turn of int      (** turn turtle by n degrees *)
 | Store            (** save the current position of the turtle *)
 | Restore          (** restore the last saved position not yet restored *)
+| Color of Graphics.color
 
 (** Position and angle of the turtle *)
 type position = {
