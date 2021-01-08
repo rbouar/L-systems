@@ -15,3 +15,9 @@ type 's system = {
 (** Put here any type and function interfaces concerning systems *)
 val draw_system : 's system -> unit
 val next : 's system ->  int -> 's system
+val iter_word :
+  'a word ->
+  ('a -> Turtle.command list) ->
+  ('b -> Turtle.command list -> 'b) ->
+  'b ->
+  'b

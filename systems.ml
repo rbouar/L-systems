@@ -94,8 +94,8 @@ let scaled_interp interp factor x =
                                    | Move n -> Move (Int.of_float ((Float.of_int n) *. factor))
                                    | c -> c )
 
-(** Draw the given lsystem with right scale *)
-let draw_system sys =
+
+let compute_factor width height sys =
   let padding = 50. in
   let ul, dr = frame_system sys in
 
@@ -105,12 +105,19 @@ let draw_system sys =
   let frame_width = Float.abs (dr.x -. ul.x) in
 
   let factor = scale_factor window_height window_width frame_height frame_width in
-
-  let interp = scaled_interp sys.interp factor in
-  
   let turtle_x = new_turtle_start_x (window_width +. padding) ul dr turtle_start_x factor in
   let turtle_y = new_turtle_start_y (window_height +. padding) ul dr turtle_start_y factor in
-  
+  factor, turtle_x, turtle_y
+
+
+(** Draw the given lsystem with right scale *)
+let draw_system sys =
+
+  let factor, turtle_x, turtle_y = compute_factor (Graphics.size_x ()) (Graphics.size_y ()) sys in
+
+  let interp = scaled_interp sys.interp factor in
+
+
   let turtle = Turtle.create_turtle_at turtle_x turtle_y in
   let _ = iter_word sys.axiom interp Turtle.exec turtle in
   ();;
