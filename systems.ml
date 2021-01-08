@@ -60,7 +60,7 @@ let frame_interp interp x =
                                    | c -> c )
 
 let frame_exec exec (turtle, up_left, down_right) cmd =
-  let turtle' = Turtle.exec turtle cmd in
+  let turtle' = exec turtle cmd in
   (turtle',
    update_up_left turtle' up_left,
    update_down_right turtle' down_right)
@@ -68,7 +68,7 @@ let frame_exec exec (turtle, up_left, down_right) cmd =
 (** Compute the minimal rectangle framing the lsystem *)
 let frame_system sys =
   let interp = frame_interp sys.interp in
-  let exec = frame_exec Turtle.exec in
+  let exec = frame_exec (Turtle.exec 1.) in
   let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y in
   let pos = turtle_pos turtle in
   let _, up_left, down_right = iter_word sys.axiom interp exec (turtle, pos, pos) in
@@ -86,14 +86,6 @@ let new_turtle_start_x window_width up_left down_right turtle_x factor =
 
 let new_turtle_start_y window_height up_left down_right turtle_y factor =
   (window_height /. 2.) -. factor *. ((up_left.y +. down_right.y) /. 2.) +. turtle_y *. (factor -. 1.)
-
-(* Les mouvements de la tortue dépendent du facteur d'agrandissement *)
-let scaled_interp interp factor x =
-  interp x |> List.map (fun cmd -> match cmd with
-                                   | Line n -> Line (Int.of_float ((Float.of_int n) *. factor))
-                                   | Move n -> Move (Int.of_float ((Float.of_int n) *. factor))
-                                   | c -> c )
-
 
 let compute_factor width height sys =
   let padding = 50. in
@@ -115,11 +107,8 @@ let draw_system sys =
 
   let factor, turtle_x, turtle_y = compute_factor (Graphics.size_x ()) (Graphics.size_y ()) sys in
 
-  let interp = scaled_interp sys.interp factor in
-
-
   let turtle = Turtle.create_turtle_at turtle_x turtle_y in
-  let _ = iter_word sys.axiom interp Turtle.exec turtle in
+  let _ = iter_word sys.axiom sys.interp (Turtle.exec factor) turtle in
   ();;
 
 
