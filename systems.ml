@@ -87,13 +87,6 @@ let new_turtle_start_x window_width up_left down_right turtle_x factor =
 let new_turtle_start_y window_height up_left down_right turtle_y factor =
   (window_height /. 2.) -. factor *. ((up_left.y +. down_right.y) /. 2.) +. turtle_y *. (factor -. 1.)
 
-(* Les mouvements de la tortue dépendent du facteur d'agrandissement *)
-let scaled_interp interp factor x =
-  interp x |> List.map (fun cmd -> match cmd with
-                                   | Line n -> Line (Int.of_float ((Float.of_int n) *. factor))
-                                   | Move n -> Move (Int.of_float ((Float.of_int n) *. factor))
-                                   | c -> c )
-
 (** Draw the given lsystem with right scale *)
 let draw_system sys =
   let padding = 50. in
