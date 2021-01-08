@@ -12,6 +12,13 @@ let print_on_minus () =
 let print_on_number x =
   Printf.printf "Calcul de l'itération n°%c" x; print_newline ()
 
+let save_command sys =
+  let _ = print_string "Sauvegarde..." in
+  let _ = print_newline () in
+  let _ = To_svg.save sys "lsystem.svg" in
+  let _ = print_string "Fini" in
+  print_newline ()
+
 let print_not_found c =
   Printf.printf
     "Command inconnue: %c, voir --usage pour les commandes supportées" c;
@@ -33,6 +40,8 @@ let rec wait or_sys cur_sys cur_index =
       | '-' ->
         print_on_minus ();
         wait or_sys (Systems.next or_sys (cur_index - 1)) (cur_index - 1)
+      | 's' -> save_command cur_sys;
+        cmd_pressed ()
       | '0'.. '9' as x ->
         print_on_number x;
         let n = (Char.code x) - (Char.code '0') in

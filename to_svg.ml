@@ -2,7 +2,7 @@ let remove_if_exist filename =
   if Sys.file_exists filename then Sys.remove filename
 
 let add_svg_line c_out (pos1: Turtle.position) (pos2 : Turtle.position) =
-  Printf.fprintf c_out "<line x1=\"%f\" x2=\"%f\" y1=\"%f\" y2=\"%f\"/>" pos1.x pos2.x pos1.y pos2.y
+  Printf.fprintf c_out "<line stroke=\"black\" x1=\"%f\" x2=\"%f\" y1=\"%f\" y2=\"%f\"/>\n" pos1.x pos2.x pos1.y pos2.y
 
 
 let line t n f c_out =
@@ -31,7 +31,7 @@ let write_content_of_svg sys c_out =
 let save sys filename =
   let _ = remove_if_exist in
   let c_out = open_out filename in
-  let _  = output_string c_out "<svg width=\"800\" height=\"800\">\n" in
+  let _  = output_string c_out "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"800\" height=\"800\">\n" in
   let _ = write_content_of_svg sys c_out in
   let _ = output_string c_out "</svg>\n" in
   close_out c_out
