@@ -25,6 +25,7 @@ let rec wait or_sys cur_sys cur_index =
       | ' ' ->
         print_on_space ();
         Graphics.clear_graph ();
+        Graphics.set_color Graphics.black;
         Systems.draw_system cur_sys;
         cmd_pressed ()
       | '+' ->

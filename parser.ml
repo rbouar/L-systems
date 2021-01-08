@@ -43,6 +43,14 @@ let next_token s =
   match String.index_opt s ' ' with
   | None -> None
   | Some i -> Some (String.sub s (i+1) (String.length s - (i+1)))
+
+(* la chaîne de caractères est de la forme : ###,###,### *)
+let color_of_string s =
+  let red = String.sub s 0 3 |> int_of_string in
+  let green = String.sub s 4 3 |> int_of_string in
+  let blue = String.sub s 8 3 |> int_of_string in
+  Graphics.rgb red green blue
+
 let command_list_of_string s =
   let command_of_string s =
     let len = match String.index_opt s ' ' with
@@ -54,14 +62,15 @@ let command_list_of_string s =
     | 'L' -> Turtle.Line ((String.sub s 1 len) |> int_of_string)
     | 'S' -> Turtle.Store
     | 'R' -> Turtle.Restore
+    | 'C' -> Turtle.Color (color_of_string (String.sub s 1 len))
     |  _  -> raise (Invalid_argument "bad pattern");
   in let rec append_command_list_of_string s l =
-    match s with
-    | None -> List.rev l
-    | Some s -> let cmd = command_of_string s in
-      append_command_list_of_string (next_token s) (cmd :: l)
-  in if String.length s = 0 then []
-  else append_command_list_of_string (Some s) []
+       match s with
+       | None -> List.rev l
+       | Some s -> let cmd = command_of_string s in
+                   append_command_list_of_string (next_token s) (cmd :: l)
+     in if String.length s = 0 then []
+        else append_command_list_of_string (Some s) []
 
 
 let is_empty_line line =

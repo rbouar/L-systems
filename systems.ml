@@ -57,6 +57,7 @@ let update_down_right turtle down_right =
 let frame_interp interp x =
   interp x |> List.map (fun cmd -> match cmd with
                                    | Line n -> Move n
+                                   | Color c -> Color 0
                                    | c -> c )
 
 let frame_exec exec (turtle, up_left, down_right) cmd =
