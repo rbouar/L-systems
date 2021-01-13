@@ -93,8 +93,8 @@ let compute_factor width height sys =
   let padding = 50. in
   let ul, dr = frame_system sys in
 
-  let window_width = (Float.of_int (Graphics.size_x ())) -. padding in
-  let window_height = (Float.of_int (Graphics.size_y ())) -. padding in
+  let window_width = (Float.of_int width) -. padding in
+  let window_height = (Float.of_int height) -. padding in
   let frame_height = Float.abs (ul.y -. dr.y) in
   let frame_width = Float.abs (dr.x -. ul.x) in
 
