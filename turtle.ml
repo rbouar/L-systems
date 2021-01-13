@@ -5,6 +5,8 @@ type command =
   | Store
   | Restore
   | Color of Graphics.color
+  | Increase
+  | Decrease
 
 type position = {
     x: float;      (** position x *)
@@ -28,8 +30,12 @@ let create_turtle_at x y width =
   { pos = pos; states = []; color = Graphics.black; width = width }
 
 
+
 let turtle_pos turtle =
   turtle.pos
+
+let turtle_color t =
+  t.color
 
 
 (** Degree to radian *)
@@ -76,6 +82,10 @@ let set_color turtle color =
   let _ = Graphics.set_color color in
   { turtle with color = color }
 
+let set_width turtle width =
+  let _ = Graphics.set_line_width width in
+  { turtle with width = width }
+  
 let rec exec f t l =
   match l with
   | [] -> t
@@ -85,8 +95,7 @@ let rec exec f t l =
                  | Turn n -> turn t n
                  | Store -> store t
                  | Restore -> restore t
-                 | Color c -> set_color t c in
+                 | Color c -> set_color t c
+                 | Increase -> set_width t (t.width + 1)
+                 | Decrease -> set_width t (t.width - 1) in
                exec f t' l'
-
-let turtle_color t =
-  t.color

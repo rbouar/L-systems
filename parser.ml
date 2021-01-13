@@ -63,6 +63,8 @@ let command_list_of_string s =
     | 'S' -> Turtle.Store
     | 'R' -> Turtle.Restore
     | 'C' -> Turtle.Color (color_of_string (String.sub s 1 len))
+    | 'I' -> Turtle.Increase
+    | 'D' -> Turtle.Decrease
     |  _  -> raise (Invalid_argument "bad pattern");
   in let rec append_command_list_of_string s l =
        match s with

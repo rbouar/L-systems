@@ -7,6 +7,8 @@ type command =
 | Store            (** save the current position of the turtle *)
 | Restore          (** restore the last saved position not yet restored *)
 | Color of Graphics.color
+| Increase
+| Decrease
 
 (** Position and angle of the turtle *)
 type position = {
