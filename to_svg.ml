@@ -24,7 +24,7 @@ let rec exec c_out f t l =
 
 let write_content_of_svg sys c_out =
   let factor, turtle_x, turtle_y = Systems.compute_factor 800 800 sys in
-  let t = Turtle.create_turtle_at turtle_x turtle_y in
+  let t = Turtle.create_turtle_at turtle_x turtle_y 1 in
   Systems.iter_word sys.axiom sys.interp (exec c_out factor) t
 
 

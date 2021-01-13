@@ -71,7 +71,7 @@ let rec frame_exec exec (turtle, up_left, down_right) cmd = match cmd with
 let frame_system sys =
   let interp = frame_interp sys.interp in
   let exec = frame_exec (Turtle.exec 1.) in
-  let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y in
+  let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y 1 in
   let pos = turtle_pos turtle in
   let _, up_left, down_right = iter_word sys.axiom interp exec (turtle, pos, pos) in
   up_left, down_right
@@ -109,7 +109,7 @@ let draw_system sys =
 
   let factor, turtle_x, turtle_y = compute_factor (Graphics.size_x ()) (Graphics.size_y ()) sys in
 
-  let turtle = Turtle.create_turtle_at turtle_x turtle_y in
+  let turtle = Turtle.create_turtle_at turtle_x turtle_y 1 in
   let _ = iter_word sys.axiom sys.interp (Turtle.exec factor) turtle in
   ();;
 

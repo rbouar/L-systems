@@ -15,14 +15,17 @@ type position = {
 
 type turtle = {
     pos : position;
-    states : (position * Graphics.color) list;
+    states : (position * Graphics.color * int) list;
     color : Graphics.color;
+    width : int;
   }
 
-let create_turtle_at x y =
-  Graphics.moveto (Int.of_float x) (Int.of_float y);
+let create_turtle_at x y width =
+  Graphics.moveto (Int.of_float x) (Int.of_float y);  
+  Graphics.set_line_width width;
+  
   let pos = {x = x; y = y; a = 90} in
-  { pos = pos; states = []; color = Graphics.black }
+  { pos = pos; states = []; color = Graphics.black; width = width }
 
 
 let turtle_pos turtle =
@@ -59,14 +62,15 @@ let turn t angle =
   { t with pos = new_pos }
 
 let store t =
-  { t with states = (t.pos, t.color) :: t.states }
+  { t with states = (t.pos, t.color, t.width) :: t.states }
 
 let restore t =
   match t.states with
   | [] -> failwith "No more state"
-  | (p,c) :: l' -> Graphics.moveto (Float.to_int p.x) (Float.to_int p.y);
-                   Graphics.set_color c;
-                   {pos = p; states = l'; color = c}
+  | (p, c, w) :: l' -> Graphics.moveto (Float.to_int p.x) (Float.to_int p.y);
+                     Graphics.set_color c;
+                     Graphics.set_line_width w;
+                     {pos = p; states = l'; color = c; width = w}
 
 let set_color turtle color =
   let _ = Graphics.set_color color in

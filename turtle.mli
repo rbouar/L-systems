@@ -18,7 +18,7 @@ type position = {
 type turtle
 
 (** Create turtle at given positions *)
-val create_turtle_at : float -> float -> turtle
+val create_turtle_at : float -> float -> int -> turtle
 
 (** Get turtle's current position *)
 val turtle_pos : turtle -> position
