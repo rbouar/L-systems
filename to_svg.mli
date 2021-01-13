@@ -1,1 +1,1 @@
-val save : 's Systems.system -> string -> unit
+val save : 's Systems.system -> string -> int -> int -> unit

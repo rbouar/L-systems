@@ -15,7 +15,7 @@ let print_on_number x =
 let save_command sys =
   let _ = print_string "Sauvegarde..." in
   let _ = print_newline () in
-  let _ = To_svg.save sys "lsystem.svg" in
+  let _ = To_svg.save sys "lsystem.svg" 800 800 in
   let _ = print_string "Fini" in
   print_newline ()
 
