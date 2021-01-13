@@ -23,4 +23,4 @@ val iter_word :
   'b
 
 
-val compute_factor : int -> int -> 's system -> float * float * float
+val compute_factor : int -> int -> 's system -> float * float * float * int

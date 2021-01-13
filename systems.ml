@@ -61,11 +61,13 @@ let frame_interp interp x =
                                    | c -> c )
 
 
-let rec frame_exec exec (turtle, up_left, down_right) cmd = match cmd with
-  | [] -> (turtle, up_left, down_right)
+let rec frame_exec exec (turtle, up_left, down_right, min_width, width) cmd = match cmd with
+  | [] -> (turtle, up_left, down_right, min_width, width)
+  | Increase :: cmd -> frame_exec exec (turtle, up_left, down_right, min_width, width+1) cmd
+  | Decrease :: cmd -> frame_exec exec (turtle, up_left, down_right, (min min_width (width - 1)), width-1) cmd
   | x :: cmd ->
     let turtle' = exec turtle [x] in
-    frame_exec exec (turtle', (update_up_left turtle' up_left), (update_down_right turtle' down_right)) cmd
+    frame_exec exec (turtle', (update_up_left turtle' up_left), (update_down_right turtle' down_right), min_width, width) cmd
 
 (** Compute the minimal rectangle framing the lsystem *)
 let frame_system sys =
@@ -73,8 +75,8 @@ let frame_system sys =
   let exec = frame_exec (Turtle.exec 1.) in
   let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y 1 in
   let pos = turtle_pos turtle in
-  let _, up_left, down_right = iter_word sys.axiom interp exec (turtle, pos, pos) in
-  up_left, down_right
+  let _, up_left, down_right, min_width, _ = iter_word sys.axiom interp exec (turtle, pos, pos, 0, 0) in
+  up_left, down_right, min_width
 
 
 (* Calcule le facteur d'agrandissement tel que le rectangle encadrant soit le
@@ -91,7 +93,7 @@ let new_turtle_start_y window_height up_left down_right turtle_y factor =
 
 let compute_factor width height sys =
   let padding = 50. in
-  let ul, dr = frame_system sys in
+  let ul, dr, mw = frame_system sys in
 
   let window_width = (Float.of_int width) -. padding in
   let window_height = (Float.of_int height) -. padding in
@@ -101,15 +103,15 @@ let compute_factor width height sys =
   let factor = scale_factor window_height window_width frame_height frame_width in
   let turtle_x = new_turtle_start_x (window_width +. padding) ul dr turtle_start_x factor in
   let turtle_y = new_turtle_start_y (window_height +. padding) ul dr turtle_start_y factor in
-  factor, turtle_x, turtle_y
+  factor, turtle_x, turtle_y, (1 - mw)
 
 
 (** Draw the given lsystem with right scale *)
 let draw_system sys =
 
-  let factor, turtle_x, turtle_y = compute_factor (Graphics.size_x ()) (Graphics.size_y ()) sys in
+  let factor, turtle_x, turtle_y, start_width = compute_factor (Graphics.size_x ()) (Graphics.size_y ()) sys in
 
-  let turtle = Turtle.create_turtle_at turtle_x turtle_y 1 in
+  let turtle = Turtle.create_turtle_at turtle_x turtle_y start_width in
   let _ = iter_word sys.axiom sys.interp (Turtle.exec factor) turtle in
   ();;
 
