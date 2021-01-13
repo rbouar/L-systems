@@ -46,7 +46,8 @@ let rec wait or_sys cur_sys cur_index =
       | '0'.. '9' as x ->
         print_on_number x;
         let n = (Char.code x) - (Char.code '0') in
-        if n >= cur_index then wait or_sys (Systems.next cur_sys (n - cur_index)) n
+        if n >= cur_index then
+          wait or_sys (Systems.next cur_sys (n - cur_index)) n
         else wait or_sys (Systems.next or_sys n) n
       | x -> print_not_found x; cmd_pressed ()
     else cmd_pressed ()

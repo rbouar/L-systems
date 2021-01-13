@@ -35,7 +35,7 @@ and iter_seq seq interp exec a =
   match seq with
   | [] -> a
   | w :: seq' -> let a' = iter_word w interp exec a
-                 in iter_seq seq' interp exec a'
+    in iter_seq seq' interp exec a'
 
 and iter_branch branch interp exec a =
   let a1 = exec a [Store] in
@@ -43,7 +43,9 @@ and iter_branch branch interp exec a =
   exec a2 [Restore]
 
 
-(* Calcule le nouveau coin haut-gauche en fonction de la position de la tortue *)
+(* Calcule le nouveau coin haut-gauche
+ * en fonction de la position de la tortue
+*)
 let update_up_left turtle up_left =
   let pos = turtle_pos turtle in
   { up_left with x = min up_left.x pos.x; y = max up_left.y pos.y }
@@ -56,16 +58,24 @@ let update_down_right turtle down_right =
 (* On ne veut pas dessiner durant le calcul de l'échelle *)
 let frame_interp interp x =
   interp x |> List.map (fun cmd -> match cmd with
-                                   | Line n -> Move n
-                                   | Color c -> Color 0
-                                   | c -> c )
+      | Line n -> Move n
+      | Color c -> Color 0
+      | c -> c )
 
 
-let rec frame_exec exec (turtle, up_left, down_right, min_width) cmd = match cmd with
+let rec frame_exec exec (turtle, up_left, down_right, min_width) cmd =
+  match cmd with
   | [] -> (turtle, up_left, down_right, min_width)
   | x :: cmd ->
     let turtle' = exec turtle [x] in
-    frame_exec exec (turtle', (update_up_left turtle' up_left), (update_down_right turtle' down_right), (min min_width (Turtle.turtle_width turtle'))) cmd
+    frame_exec
+      exec
+      (
+        turtle', (update_up_left turtle' up_left),
+        (update_down_right turtle' down_right),
+        (min min_width (Turtle.turtle_width turtle'))
+      )
+      cmd
 
 (** Compute the minimal rectangle framing the lsystem *)
 let frame_system sys =
@@ -73,7 +83,12 @@ let frame_system sys =
   let exec = frame_exec (Turtle.exec 1.) in
   let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y 0 in
   let pos = turtle_pos turtle in
-  let _, up_left, down_right, min_width = iter_word sys.axiom interp exec (turtle, pos, pos, 0) in
+  let _, up_left, down_right, min_width =
+    iter_word
+      sys.axiom
+      interp
+      exec
+      (turtle, pos, pos, 0) in
   up_left, down_right, min_width
 
 
@@ -84,10 +99,12 @@ let scale_factor window_height window_width frame_height frame_width =
 
 
 let new_turtle_start_x window_width up_left down_right turtle_x factor =
-  (window_width /. 2.) -. factor *. ((up_left.x +. down_right.x) /. 2.) +. turtle_x *. (factor -. 1.)
+  (window_width /. 2.) -.
+  factor *. ((up_left.x +. down_right.x) /. 2.) +. turtle_x *. (factor -. 1.)
 
 let new_turtle_start_y window_height up_left down_right turtle_y factor =
-  (window_height /. 2.) -. factor *. ((up_left.y +. down_right.y) /. 2.) +. turtle_y *. (factor -. 1.)
+  (window_height /. 2.) -.
+  factor *. ((up_left.y +. down_right.y) /. 2.) +. turtle_y *. (factor -. 1.)
 
 let compute_factor width height sys =
   let padding = 50. in
@@ -98,16 +115,20 @@ let compute_factor width height sys =
   let frame_height = Float.abs (ul.y -. dr.y) in
   let frame_width = Float.abs (dr.x -. ul.x) in
 
-  let factor = scale_factor window_height window_width frame_height frame_width in
-  let turtle_x = new_turtle_start_x (window_width +. padding) ul dr turtle_start_x factor in
-  let turtle_y = new_turtle_start_y (window_height +. padding) ul dr turtle_start_y factor in
+  let factor =
+    scale_factor window_height window_width frame_height frame_width in
+  let turtle_x = new_turtle_start_x
+      (window_width +. padding) ul dr turtle_start_x factor in
+  let turtle_y = new_turtle_start_y
+      (window_height +. padding) ul dr turtle_start_y factor in
   factor, turtle_x, turtle_y, (1 - mw)
 
 
 (** Draw the given lsystem with right scale *)
 let draw_system sys =
 
-  let factor, turtle_x, turtle_y, start_width = compute_factor (Graphics.size_x ()) (Graphics.size_y ()) sys in
+  let factor, turtle_x, turtle_y, start_width =
+    compute_factor (Graphics.size_x ()) (Graphics.size_y ()) sys in
   let turtle = Turtle.create_turtle_at turtle_x turtle_y start_width in
   let _ = iter_word sys.axiom sys.interp (Turtle.exec factor) turtle in
   ();;

@@ -19,7 +19,8 @@ let usage =
   ^"  <+>: Calcul l'itération suivante du L-systemes courant\n"
   ^"  <->: Calcul l'itération précédente du L-systemes courant\n"
   ^"  <0> à <9>: Calcul la i-ième itération du L-systemes chargé inital\n"
-  ^"  <s>: Sauvegarde le L-systemes courant en image vectoriel dans lsystem.svg\n"
+  ^"  <s>: Sauvegarde le L-systemes courant en image vectoriel dans lsystem.svg\
+    \n"
 ^"  <q>: Quitter"
 
 

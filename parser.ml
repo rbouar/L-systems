@@ -1,7 +1,9 @@
 open Systems
 
-(* Cherche le début de la branche (i.e. '[') dans la sous-chaîne [inf, branch_end] de s.
- * On suppose que branch_end est la fin de la branche (i.e s.[branch_end] = ']') *)
+(* Cherche le début de la branche (i.e. '[') dans la sous-chaîne
+ * [inf, branch_end] de s.
+ * On suppose que branch_end est la fin de la branche (i.e s.[branch_end] = ']')
+*)
 let find_branch_start s inf branch_end =
   let rec rloop i nb =
     if nb < 0 || i < inf then failwith "Unbalanced branch"
