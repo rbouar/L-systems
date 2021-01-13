@@ -57,13 +57,15 @@ let update_down_right turtle down_right =
 let frame_interp interp x =
   interp x |> List.map (fun cmd -> match cmd with
                                    | Line n -> Move n
+                                   | Color c -> Color 0
                                    | c -> c )
 
-let frame_exec exec (turtle, up_left, down_right) cmd =
-  let turtle' = exec turtle cmd in
-  (turtle',
-   update_up_left turtle' up_left,
-   update_down_right turtle' down_right)
+
+let rec frame_exec exec (turtle, up_left, down_right) cmd = match cmd with
+  | [] -> (turtle, up_left, down_right)
+  | x :: cmd ->
+    let turtle' = exec turtle [x] in
+    frame_exec exec (turtle', (update_up_left turtle' up_left), (update_down_right turtle' down_right)) cmd
 
 (** Compute the minimal rectangle framing the lsystem *)
 let frame_system sys =

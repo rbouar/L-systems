@@ -1,0 +1,11 @@
+# Création personnelle
+## F représente des baies rouges avec une tige verte qui précède
+## Y représente les branches marrons
+F
+
+F Y[+YF][-YF]
+
+Y C139,069,019 L15
+F C000,200,000 L5 C255,000,000 T-60 L2 T60 L2 T60 L2 T60 L2 T60 L2 T60 L2 C088,041,000
+- T-10
++ T10
