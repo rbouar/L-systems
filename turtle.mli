@@ -30,4 +30,6 @@ val exec : float -> turtle -> command list -> turtle
 
 val update_pos : turtle -> int -> float -> turtle
 
-val turtle_color : turtle -> Graphics.color 
+val turtle_color : turtle -> Graphics.color
+
+val turtle_width : turtle -> int

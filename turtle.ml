@@ -23,9 +23,9 @@ type turtle = {
   }
 
 let create_turtle_at x y width =
-  Graphics.moveto (Int.of_float x) (Int.of_float y);  
+  Graphics.moveto (Int.of_float x) (Int.of_float y);
   Graphics.set_line_width width;
-  
+
   let pos = {x = x; y = y; a = 90} in
   { pos = pos; states = []; color = Graphics.black; width = width }
 
@@ -83,9 +83,12 @@ let set_color turtle color =
   { turtle with color = color }
 
 let set_width turtle width =
-  let _ = Graphics.set_line_width width in
-  { turtle with width = width }
-  
+  let t = { turtle with width = width} in
+  try
+    let _ = Graphics.set_line_width width in
+    t
+  with Invalid_argument s -> t
+
 let rec exec f t l =
   match l with
   | [] -> t
@@ -99,3 +102,5 @@ let rec exec f t l =
                  | Increase -> set_width t (t.width + 1)
                  | Decrease -> set_width t (t.width - 1) in
                exec f t' l'
+
+let turtle_width t = t.width

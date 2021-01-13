@@ -61,21 +61,19 @@ let frame_interp interp x =
                                    | c -> c )
 
 
-let rec frame_exec exec (turtle, up_left, down_right, min_width, width) cmd = match cmd with
-  | [] -> (turtle, up_left, down_right, min_width, width)
-  | Increase :: cmd -> frame_exec exec (turtle, up_left, down_right, min_width, width+1) cmd
-  | Decrease :: cmd -> frame_exec exec (turtle, up_left, down_right, (min min_width (width - 1)), width-1) cmd
+let rec frame_exec exec (turtle, up_left, down_right, min_width) cmd = match cmd with
+  | [] -> (turtle, up_left, down_right, min_width)
   | x :: cmd ->
     let turtle' = exec turtle [x] in
-    frame_exec exec (turtle', (update_up_left turtle' up_left), (update_down_right turtle' down_right), min_width, width) cmd
+    frame_exec exec (turtle', (update_up_left turtle' up_left), (update_down_right turtle' down_right), (min min_width (Turtle.turtle_width turtle'))) cmd
 
 (** Compute the minimal rectangle framing the lsystem *)
 let frame_system sys =
   let interp = frame_interp sys.interp in
   let exec = frame_exec (Turtle.exec 1.) in
-  let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y 1 in
+  let turtle = Turtle.create_turtle_at turtle_start_x turtle_start_y 0 in
   let pos = turtle_pos turtle in
-  let _, up_left, down_right, min_width, _ = iter_word sys.axiom interp exec (turtle, pos, pos, 0, 0) in
+  let _, up_left, down_right, min_width = iter_word sys.axiom interp exec (turtle, pos, pos, 0) in
   up_left, down_right, min_width
 
 
@@ -110,7 +108,6 @@ let compute_factor width height sys =
 let draw_system sys =
 
   let factor, turtle_x, turtle_y, start_width = compute_factor (Graphics.size_x ()) (Graphics.size_y ()) sys in
-
   let turtle = Turtle.create_turtle_at turtle_x turtle_y start_width in
   let _ = iter_word sys.axiom sys.interp (Turtle.exec factor) turtle in
   ();;
