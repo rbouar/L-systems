@@ -1,5 +1,9 @@
 open Lsystems
 
+open Lsystems (* Librairie regroupant le reste du code. Cf. fichier dune *)
+open Systems (* Par exemple *)
+open Turtle
+
 (** Gestion des arguments de la ligne de commande.
     Nous suggérons l'utilisation du module Arg
     http://caml.inria.fr/pub/docs/manual-ocaml/libref/Arg.html
