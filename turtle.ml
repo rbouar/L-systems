@@ -25,10 +25,8 @@ type turtle = {
 let create_turtle_at x y width =
   Graphics.moveto (Int.of_float x) (Int.of_float y);
   Graphics.set_line_width width;
-
   let pos = {x = x; y = y; a = 90} in
   { pos = pos; states = []; color = Graphics.black; width = width }
-
 
 
 let turtle_pos turtle =
@@ -53,6 +51,19 @@ let update_pos t n f =
   { t with pos = new_pos }
 
 
+
+let set_color turtle color =
+  let _ = Graphics.set_color color in
+  { turtle with color = color }
+
+let set_width turtle width =
+  let t = { turtle with width = width} in
+  try    
+    let _ = Graphics.set_line_width width in
+    t
+  with Invalid_argument s -> t
+
+
 let line t n f =
   let t' = update_pos t n f in
   Graphics.lineto (Float.to_int t'.pos.x) (Float.to_int t'.pos.y);
@@ -74,20 +85,9 @@ let restore t =
   match t.states with
   | [] -> failwith "No more state"
   | (p, c, w) :: l' -> Graphics.moveto (Float.to_int p.x) (Float.to_int p.y);
-                     Graphics.set_color c;
-                     Graphics.set_line_width w;
-                     {pos = p; states = l'; color = c; width = w}
+                       let t' = set_color (set_width t w) c in
+                       { t' with pos = p; states = l'}
 
-let set_color turtle color =
-  let _ = Graphics.set_color color in
-  { turtle with color = color }
-
-let set_width turtle width =
-  let t = { turtle with width = width} in
-  try
-    let _ = Graphics.set_line_width width in
-    t
-  with Invalid_argument s -> t
 
 let rec exec f t l =
   match l with
