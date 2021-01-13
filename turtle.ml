@@ -83,3 +83,6 @@ let rec exec f t l =
                  | Restore -> restore t
                  | Color c -> set_color t c in
                exec f t' l'
+
+let turtle_color t =
+  t.color

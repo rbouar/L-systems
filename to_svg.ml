@@ -1,15 +1,15 @@
 let remove_if_exist filename =
   if Sys.file_exists filename then Sys.remove filename
 
-let add_svg_line c_out (pos1: Turtle.position) (pos2 : Turtle.position) =
-  Printf.fprintf c_out "<line stroke=\"black\" x1=\"%f\" x2=\"%f\" y1=\"%f\" y2=\"%f\"/>\n" pos1.x pos2.x pos1.y pos2.y
+let add_svg_line c_out (pos1: Turtle.position) (pos2 : Turtle.position) (c : Graphics.color) =
+  Printf.fprintf c_out "<line stroke=\"#%06x\" x1=\"%f\" x2=\"%f\" y1=\"%f\" y2=\"%f\"/>\n" c pos1.x pos2.x (800. -. pos1.y) (800. -. pos2.y)
 
 
 let line t n f c_out =
   let t' = Turtle.update_pos t n f in
   let pos = Turtle.turtle_pos t in
   let pos' = Turtle.turtle_pos t' in
-  let _ = add_svg_line c_out pos pos' in
+  let _ = add_svg_line c_out pos pos' (Turtle.turtle_color t) in
   t'
 
 let rec exec c_out f t l =
